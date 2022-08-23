@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 
 import nested_admin
 
-from accounts.models import Score
 from .models import Test, Question, Answer
 
 
@@ -19,13 +18,12 @@ class AnswerInline(nested_admin.NestedStackedInline):
 class QuestionInLine(nested_admin.NestedStackedInline):
     model = Question
     inlines = [AnswerInline]
-    exclude = ['time']
     min_num = 1
 
 
 class TestAdmin(nested_admin.NestedModelAdmin):
     model = Test
-    list_display = ['group', 'questions', 'passed', 'leader', 'leader_score', 'avg_score']
+    list_display = ['title', 'group', 'questions', 'passed', 'leader', 'leader_score', 'avg_score']
     inlines = [QuestionInLine]
 
     def questions(self, obj: Test):
