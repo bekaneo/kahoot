@@ -1,0 +1,39 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <Languages>
+        <language minSize="97" name="Python" />
+      </Languages>
+    </inspection_tool>
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="1">
+            <item index="0" class="java.lang.String" itemvalue="pydantic" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="str.get" />
+          <option value="type.without_ui" />
+          <option value="type.with_ui" />
+          <option value="nested_admin.NestedStackedInline" />
+          <option value="nested_admin.NestedModelAdmin" />
+          <option value="accounts.models.UserQuestionScore.DoesNotExist" />
+          <option value="accounts.models.UserQuestionScore.objects" />
+          <option value="accounts.models.UserQuestionTime.objects" />
+          <option value="questions.models.Question.objects" />
+          <option value="accounts.models.UserQuestionTime.DoesNotExist" />
+          <option value="questions.models.Test.objects" />
+          <option value="questions.models.Answer.objects" />
+          <option value="accounts.models.Score.DoesNotExist" />
+          <option value="accounts.models.Score.objects" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
