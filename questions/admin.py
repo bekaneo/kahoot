@@ -4,10 +4,16 @@ from django.contrib.auth import get_user_model
 
 import nested_admin
 
+from accounts.models import Score
 from .models import Test, Question, Answer
 
-
 User = get_user_model()
+
+
+class UserInLine(nested_admin.NestedStackedInline):
+    model = Score
+    readonly_fields = ['score', 'test', 'login']
+    max_num = 0
 
 
 class AnswerInline(nested_admin.NestedStackedInline):
@@ -24,7 +30,7 @@ class QuestionInLine(nested_admin.NestedStackedInline):
 class TestAdmin(nested_admin.NestedModelAdmin):
     model = Test
     list_display = ['title', 'group', 'questions', 'passed', 'leader', 'leader_score', 'avg_score']
-    inlines = [QuestionInLine]
+    inlines = [QuestionInLine, UserInLine]
 
     def questions(self, obj: Test):
         return obj.questions.count()

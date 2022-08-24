@@ -5,7 +5,7 @@ from django.db.models import Avg
 from accounts.models import User, Score, UserQuestionScore
 
 
-class AnswerInline(nested_admin.NestedStackedInline):
+class QuestionInline(nested_admin.NestedStackedInline):
     model = UserQuestionScore
     readonly_fields = ['question', 'test', 'answer', 'score']
     verbose_name = 'User Answer'
@@ -13,7 +13,7 @@ class AnswerInline(nested_admin.NestedStackedInline):
     max_num = 0
 
 
-class QuestionInLine(nested_admin.NestedStackedInline):
+class ScoreInLine(nested_admin.NestedStackedInline):
     model = Score
     readonly_fields = ['score', 'test']
     verbose_name = 'User Test'
@@ -24,7 +24,7 @@ class QuestionInLine(nested_admin.NestedStackedInline):
 @admin.register(User)
 class UserAdmin(nested_admin.NestedModelAdmin):
     model = User
-    inlines = [QuestionInLine, AnswerInline]
+    inlines = [ScoreInLine, QuestionInline]
     list_filter = ['group']
     list_display = ['login', 'name', 'second_name', 'phone_number',
                     'group', 'overall_rating', 'group_rating',
@@ -41,7 +41,7 @@ class LeaderBoardProxy(User):
 
 @admin.register(LeaderBoardProxy)
 class LeaderBoard(admin.ModelAdmin):
-    inlines = [QuestionInLine, AnswerInline]
+    inlines = [ScoreInLine, QuestionInline]
     list_display = ['login', 'name', 'second_name', 'group',
                     'phone_number', 'overall_score', 'overall_rating',
                     'passed', 'avg_score']
