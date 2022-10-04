@@ -102,6 +102,12 @@ class ListTestSerializer(serializers.ModelSerializer):
         representation['test_passed'] = instance.score.count()
         return representation
 
+    def to_internal_value(self, data):
+        values = super().to_internal_value(data)
+        print(values)
+        print(data)
+        return super().to_internal_value(data)
+
     def validate(self, attrs):
         print(attrs)
         return super().validate(attrs)

@@ -17,7 +17,13 @@ from questions.utils import calculate_score, check_answers
 
 class ListTestView(ListAPIView, CreateAPIView):
     serializer_class = ListTestSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method in ['POST']:
+            return []
+        else:
+            return [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         queryset = Test.objects.filter(group=request.user.group)
