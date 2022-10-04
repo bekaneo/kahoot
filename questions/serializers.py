@@ -4,18 +4,6 @@ from accounts.models import User
 from questions.models import Test, Question, Answer
 
 
-class ListTestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Test
-        fields = '__all__'
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['questions_count'] = instance.questions.count()
-        representation['test_passed'] = instance.score.count()
-        return representation
-
-
 class TestUsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Test
@@ -46,17 +34,6 @@ class UserSerializer(serializers.ModelSerializer):
         return representation
 
 
-class ListQuestionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Question
-        fields = '__all__'
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['answers'] = AnswersSerializer(instance.answer.all(), many=True).data
-        return representation
-
-
 class RetrieveQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
@@ -74,6 +51,61 @@ class AnswersSerializer(serializers.ModelSerializer):
         fields = ['A', 'B', 'C', 'D']
 
 
-class AnswerSerializer(serializers.Serializer):
+class AnswerSerializer(serializers.ModelSerializer):
     answer = serializers.CharField()
     time = serializers.IntegerField()
+
+    class Meta:
+        model = Answer
+        fields = '__all__'
+
+    def validate(self, attrs):
+        print(attrs)
+        return super().validate(attrs)
+
+    def create(self, validated_data):
+        print(validated_data)
+        return super().create(validated_data)
+
+
+class ListQuestionSerializer(serializers.ModelSerializer):
+    answer = AnswerSerializer(many=True)
+
+    class Meta:
+        model = Question
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['answers'] = AnswersSerializer(instance.answer.all(), many=True).data
+        return representation
+
+    def validate(self, attrs):
+        print(attrs)
+        return super().validate(attrs)
+
+    def create(self, validated_data):
+        print(validated_data)
+        return super().create(validated_data)
+
+
+class ListTestSerializer(serializers.ModelSerializer):
+    questions = ListQuestionSerializer(many=True)
+
+    class Meta:
+        model = Test
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['questions_count'] = instance.questions.count()
+        representation['test_passed'] = instance.score.count()
+        return representation
+
+    def validate(self, attrs):
+        print(attrs)
+        return super().validate(attrs)
+
+    def create(self, validated_data):
+        print(validated_data)
+        return super().create(validated_data)

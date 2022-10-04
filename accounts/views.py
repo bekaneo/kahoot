@@ -33,6 +33,7 @@ class UsersListView(ListAPIView):
 class ProfileView(ListAPIView):
     serializer_class = ProfileSerializer
 
+    @swagger_auto_schema(request_body=ProfileSerializer)
     def list(self, request, login, *args, **kwargs):
         queryset = User.objects.filter(login=login)
         serializer = ProfileSerializer(queryset, context={'request': request}, many=True)

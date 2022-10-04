@@ -12,7 +12,7 @@ User = get_user_model()
 
 class UserInLine(nested_admin.NestedStackedInline):
     model = Score
-    readonly_fields = ['score', 'test', 'login']
+    readonly_fields = ['login', 'score']
     max_num = 0
 
 
@@ -24,7 +24,6 @@ class AnswerInline(nested_admin.NestedStackedInline):
 class QuestionInLine(nested_admin.NestedStackedInline):
     model = Question
     inlines = [AnswerInline]
-    min_num = 1
 
 
 class TestAdmin(nested_admin.NestedModelAdmin):

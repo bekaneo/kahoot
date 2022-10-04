@@ -1,7 +1,6 @@
 import nested_admin
 from django.contrib import admin
 from django.db.models import Avg
-
 from accounts.models import User, Score, UserQuestionScore
 
 
@@ -21,7 +20,6 @@ class ScoreInLine(nested_admin.NestedStackedInline):
     max_num = 0
 
 
-@admin.register(User)
 class UserAdmin(nested_admin.NestedModelAdmin):
     model = User
     inlines = [ScoreInLine, QuestionInline]
@@ -39,7 +37,6 @@ class LeaderBoardProxy(User):
         verbose_name_plural = 'Leaderboard'
 
 
-@admin.register(LeaderBoardProxy)
 class LeaderBoard(admin.ModelAdmin):
     inlines = [ScoreInLine, QuestionInline]
     list_display = ['login', 'name', 'second_name', 'group',
@@ -54,3 +51,7 @@ class LeaderBoard(admin.ModelAdmin):
     def avg_score(self, obj: User):
         score = obj.score.aggregate(Avg('score'))['score__avg']
         return score
+
+
+admin.site.register(User, UserAdmin)
+admin.site.register(LeaderBoardProxy, UserAdmin)

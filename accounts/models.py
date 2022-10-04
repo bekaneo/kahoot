@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, AbstractUser
 from django.utils.crypto import get_random_string
 
 from groups.models import Group
@@ -7,22 +7,22 @@ from questions.models import Test, Question
 
 
 class UserManager(BaseUserManager):
-    def _create(self, login, password, name, **fields):
+    def _create(self, login, password, **fields):
         login = self.normalize_email(login)
-        user = self.model(login=login, name=name, **fields)
+        user = self.model(login=login, **fields)
         user.set_password(password)
         user.save()
         return user
 
-    def create_user(self, login, password, name, **fields):
+    def create_user(self, login, password, **fields):
         fields.setdefault('is_active', True)
         fields.setdefault('is_staff', False)
-        return self._create(login, password, name, **fields)
+        return self._create(login, password, **fields)
 
-    def create_superuser(self, login, password, name, **fields):
+    def create_superuser(self, login, password, **fields):
         fields.setdefault('is_active', True)
         fields.setdefault('is_staff', True)
-        return self._create(login, password, name, **fields)
+        return self._create(login, password, **fields)
 
 
 class User(AbstractBaseUser):
@@ -34,14 +34,14 @@ class User(AbstractBaseUser):
     overall_score = models.IntegerField(blank=True, default=0)
     overall_rating = models.IntegerField(blank=True, default=0)
     group_rating = models.IntegerField(blank=True, default=0)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     activation_code = models.CharField(max_length=5, blank=True)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'login'
-    REQUIRED_FIELDS = ['name']
+    REQUIRED_FIELDS = []
 
     def __str__(self):
         return self.login
@@ -96,3 +96,5 @@ class UserQuestionScore(models.Model):
 
     def __str__(self):
         return str(self.test)
+
+

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="kahoot@localhost" uuid="51bd451b-60c8-47a0-a12c-1d3b4605cca3">
+    <data-source source="LOCAL" name="kahoot@localhost" uuid="5efe1fda-7e33-4631-975f-cf5afd81cc0b">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>

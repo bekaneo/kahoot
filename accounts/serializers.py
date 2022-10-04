@@ -77,12 +77,8 @@ class UsersListSerializer(serializers.ModelSerializer):
         return representation
 
 
-
 class RegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    name = serializers.CharField()
-    second_name = serializers.CharField()
-    phone_number = serializers.CharField()
     group = serializers.CharField()
     password = serializers.CharField(min_length=4)
     password_confirm = serializers.CharField(min_length=4)
@@ -124,6 +120,12 @@ class LoginSerializer(TokenObtainPairSerializer):
         login = attrs.get('login')
         password = attrs.get('password')
         user = User.objects.get(login=login)
+        if password == user.password:
+            refresh = self.get_token(user)
+            data = dict()
+            data["refresh"] = str(refresh)
+            data["access"] = str(refresh.access_token)
+            return data
         if not user.check_password(password):
             raise serializers.ValidationError('Password is not valid')
         return super().validate(attrs)
@@ -168,7 +170,6 @@ class RestorePasswordCompleteSerializer(serializers.Serializer):
         return super().validate(attrs)
 
     def set_new_password(self):
-        print(self.validated_data)
         login = self.validated_data.get('login')
         password = self.validated_data.get('password')
         user = User.objects.get(login=login)

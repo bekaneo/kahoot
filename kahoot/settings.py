@@ -51,7 +51,8 @@ INSTALLED_APPS = [
 
     'accounts',
     'groups',
-    'questions'
+    'questions',
+    'room'
 ]
 
 MIDDLEWARE = [
