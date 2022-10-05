@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from accounts.models import User
+from groups.models import Group
 from questions.models import Test, Question, Answer
 
 
@@ -59,18 +60,8 @@ class AnswerSerializer(serializers.ModelSerializer):
         model = Answer
         fields = '__all__'
 
-    def validate(self, attrs):
-        print(attrs)
-        return super().validate(attrs)
-
-    def create(self, validated_data):
-        print(validated_data)
-        return super().create(validated_data)
-
 
 class ListQuestionSerializer(serializers.ModelSerializer):
-    answer = AnswerSerializer(many=True)
-
     class Meta:
         model = Question
         fields = '__all__'
@@ -80,18 +71,8 @@ class ListQuestionSerializer(serializers.ModelSerializer):
         representation['answers'] = AnswersSerializer(instance.answer.all(), many=True).data
         return representation
 
-    def validate(self, attrs):
-        print(attrs)
-        return super().validate(attrs)
-
-    def create(self, validated_data):
-        print(validated_data)
-        return super().create(validated_data)
-
 
 class ListTestSerializer(serializers.ModelSerializer):
-    questions = ListQuestionSerializer(many=True)
-
     class Meta:
         model = Test
         fields = '__all__'
@@ -102,16 +83,47 @@ class ListTestSerializer(serializers.ModelSerializer):
         representation['test_passed'] = instance.score.count()
         return representation
 
-    def to_internal_value(self, data):
-        values = super().to_internal_value(data)
-        print(values)
-        print(data)
-        return super().to_internal_value(data)
 
-    def validate(self, attrs):
-        print(attrs)
-        return super().validate(attrs)
+class CreateAnswerSerializer(serializers.Serializer):
+    A = serializers.CharField(max_length=100)
+    B = serializers.CharField(max_length=100)
+    C = serializers.CharField(max_length=100)
+    D = serializers.CharField(max_length=100)
+    correct_answer = serializers.CharField(max_length=10)
 
     def create(self, validated_data):
-        print(validated_data)
-        return super().create(validated_data)
+        validated_data['question'] = self.context.get('question')
+        answer = Answer.objects.create(**validated_data)
+        return answer
+
+
+class CreateQuestionSerializer(serializers.Serializer):
+    question = serializers.CharField(max_length=100)
+    score = serializers.IntegerField(default=100)
+    timer = serializers.IntegerField(default=20)
+    image = serializers.ImageField(required=False)
+    answers = CreateAnswerSerializer()
+
+    def create(self, validated_data):
+        answers = validated_data.pop('answers')
+        validated_data['test'] = self.context.get('test')
+        question = Question.objects.create(**validated_data)
+        a_serializer = CreateAnswerSerializer(data=answers, context={'question': question})
+        if a_serializer.is_valid(raise_exception=True):
+            a_serializer.save()
+        return question
+
+
+class CreateTestSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=100)
+    image = serializers.ImageField(required=False)
+    questions = CreateQuestionSerializer(many=True)
+
+    def create(self, validated_data):
+        questions = validated_data.pop('questions')
+        validated_data['group'] = Group.objects.get(pk='zeon')
+        test = Test.objects.create(**validated_data)
+        q_serializer = CreateQuestionSerializer(data=questions, many=True, context={'test': test})
+        if q_serializer.is_valid(raise_exception=True):
+            q_serializer.save()
+        return test

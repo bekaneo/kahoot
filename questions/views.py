@@ -9,21 +9,27 @@ from questions.serializers import (ListTestSerializer,
                                    ListQuestionSerializer,
                                    RetrieveQuestionSerializer,
                                    AnswerSerializer,
-                                   TestUsersSerializer)
+                                   TestUsersSerializer, CreateTestSerializer)
 
 from questions.services import create_time, create_score
 from questions.utils import calculate_score, check_answers
 
 
-class ListTestView(ListAPIView, CreateAPIView):
-    serializer_class = ListTestSerializer
-    # permission_classes = [IsAuthenticated]
+class CreateTestView(CreateAPIView):
+    serializer_class = CreateTestSerializer
 
-    def get_permissions(self):
-        if self.request.method in ['POST']:
-            return []
-        else:
-            return [IsAuthenticated]
+    def create(self, request, *args, **kwargs):
+        serializer = CreateTestSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response('success', status=status.HTTP_201_CREATED)
+        return Response('Not Valid', status=status.HTTP_400_BAD_REQUEST)
+
+
+class ListTestView(ListAPIView):
+    serializer_class = ListTestSerializer
+
+    permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         queryset = Test.objects.filter(group=request.user.group)
@@ -33,30 +39,6 @@ class ListTestView(ListAPIView, CreateAPIView):
             return Response('Not found tests', status=status.HTTP_404_NOT_FOUND)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def create(self, request, *args, **kwargs):
-        serializer = ListTestSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response('Not Valid', status=status.HTTP_400_BAD_REQUEST)
-    # def create(self, request, *args, **kwargs):
-    #     questions = request.data.pop('questions')
-    #     test_serializer = ListTestSerializer(data=request.data, context={'request': request})
-    #     if test_serializer.is_valid(raise_exception=True):
-    #         test_serializer.save()
-    #         # print(test_serializer.)
-    #         for question in questions:
-    #             answers = question.pop('answers')
-    #             question_serializer = ListQuestionSerializer(data=question, many=True, context={'request': request})
-    #             if question_serializer.is_valid(raise_exception=True):
-    #                 question_serializer.save()
-    #                 for answer in answers:
-    #                     answer_serializer = AnswerSerializer(data=answer, many=True, context={'request': request})
-    #                     if answer_serializer.is_valid(raise_exception=True):
-    #                         answer_serializer.save()
-    #     return Response('Offf', status=status.HTTP_200_OK)
 
 
 class TestUsersView(ListAPIView):
