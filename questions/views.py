@@ -1,4 +1,6 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -27,18 +29,15 @@ class CreateTestView(CreateAPIView):
 
 
 class ListTestView(ListAPIView):
+    queryset = Test.objects.all()
     serializer_class = ListTestSerializer
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['title']
 
     permission_classes = [IsAuthenticated]
 
-    def list(self, request, *args, **kwargs):
-        queryset = Test.objects.filter(group=request.user.group)
-        serializer = ListTestSerializer(queryset, context={'request': request}, many=True)
-
-        if not serializer.data:
-            return Response('Not found tests', status=status.HTTP_404_NOT_FOUND)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get_queryset(self):
+        return Test.objects.filter(group=self.request.user.group)
 
 
 class TestUsersView(ListAPIView):
