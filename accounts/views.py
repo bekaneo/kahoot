@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework.generics import GenericAPIView
 
 from accounts.serializers import (UsersListSerializer,
                                   ProfileSerializer,

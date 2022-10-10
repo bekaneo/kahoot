@@ -43,13 +43,14 @@ class RetrieveQuestionSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['answers'] = AnswersSerializer(instance.answer.all(), many=True).data
+        
         return representation
 
 
 class AnswersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ['A', 'B', 'C', 'D']
+        exclude = ['question', 'correct_answer']
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -68,6 +69,7 @@ class ListQuestionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        representation['correct_answer'] = instance.answer.get().correct_answer
         representation['answers'] = AnswersSerializer(instance.answer.all(), many=True).data
         return representation
 

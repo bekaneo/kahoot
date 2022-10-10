@@ -160,7 +160,8 @@ class RestorePasswordCompleteSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         login = attrs.get('login')
-        code = attrs.get('activation_code')
+        code = attrs.get('acti'
+                         'vation_code')
         password = attrs.get('password')
         password_confirm = attrs.get('password_confirm')
         if password != password_confirm:
