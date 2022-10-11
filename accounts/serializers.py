@@ -154,7 +154,7 @@ class RestorePasswordSerializer(serializers.Serializer):
 
 class RestorePasswordCompleteSerializer(serializers.Serializer):
     login = serializers.EmailField()
-    activation_code = serializers.CharField(max_length=20, min_length=20)
+    activation_code = serializers.CharField(max_length=5, min_length=5)
     password = serializers.CharField(min_length=4)
     password_confirm = serializers.CharField(min_length=4)
 
