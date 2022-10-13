@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from accounts.models import User
+from accounts.models import User, UserQuestionScore
 from groups.models import Group
 from questions.models import Test, Question, Answer
 
@@ -115,7 +115,6 @@ class CreateQuestionSerializer(serializers.Serializer):
             a_serializer.save()
         return question
 
-
 class CreateTestSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=100)
     image = serializers.ImageField(required=False)
@@ -129,3 +128,24 @@ class CreateTestSerializer(serializers.Serializer):
         if q_serializer.is_valid(raise_exception=True):
             q_serializer.save()
         return test
+
+
+class CreateRoundScoreSerializer(serializers.Serializer):
+    test = serializers.CharField(max_length=100)
+    question = serializers.IntegerField()
+    email = serializers.EmailField(max_length=100)
+    score = serializers.IntegerField()
+    answer = serializers.CharField(max_length=5)
+
+    def validate(self, attrs):
+        email = attrs.pop('email')
+        test = attrs.pop('test')
+        question = attrs.pop('question')
+        attrs['user'] = User.objects.get(pk=email)
+        attrs['test'] = Test.objects.get(pk=test)
+        attrs['question'] = Question.objects.get(pk=question)
+        return attrs
+
+    def create(self, validated_data):
+        return UserQuestionScore.objects.create(**validated_data)
+

@@ -93,7 +93,7 @@ class UserQuestionScore(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='q_score')
     score = models.SmallIntegerField(blank=True)
     answer = models.CharField(max_length=100)
-
+    
     def __str__(self):
         return str(self.test)
 

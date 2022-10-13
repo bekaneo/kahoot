@@ -1,13 +1,15 @@
+from django.urls import is_valid_path
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
 
 from questions.models import Test, Question
 from questions.permissions import IsUserGroup
-from questions.serializers import (ListTestSerializer,
+from questions.serializers import (CreateRoundScoreSerializer, ListTestSerializer,
                                    ListQuestionSerializer,
                                    RetrieveQuestionSerializer,
                                    AnswerSerializer,
@@ -44,6 +46,7 @@ class TestUsersView(ListAPIView):
     serializer_class = TestUsersSerializer
     permission_classes = []
 
+    @swagger_auto_schema(request_body=TestUsersSerializer)
     def list(self, request, test, *args, **kwargs):
         queryset = Test.objects.filter(title=test)
         serializer = TestUsersSerializer(queryset, many=True)
@@ -52,6 +55,18 @@ class TestUsersView(ListAPIView):
             return Response('Not found test', status=status.HTTP_404_NOT_FOUND)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class CreateRoundScoreView(CreateAPIView):
+    serializer_class = CreateRoundScoreSerializer
+    permission_classes = []
+
+    def create(self, request, *args, **kwargs):
+        serializer = CreateRoundScoreSerializer(data=request.data, many=True)
+        if serializer.is_valid(raise_exception=True):
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response('Invalid data', status=status.HTTP_400_BAD_REQUEST)
 
 
 class ListQuestionsView(RetrieveAPIView):

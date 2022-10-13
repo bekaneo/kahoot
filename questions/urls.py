@@ -1,10 +1,10 @@
 from django.urls import path
 
-from questions.views import (ListTestView,
+from questions.views import (CreateRoundScoreView, ListTestView,
                              ListQuestionsView,
-                             RetrieveQuestionView,
                              TestUsersView,
-                             CreateTestView)
+                             CreateTestView,
+                             )
 
 
 urlpatterns = [
@@ -12,6 +12,6 @@ urlpatterns = [
     path('create', CreateTestView.as_view()),
     path('<str:test>/', ListQuestionsView.as_view()),
     path('<str:test>/users', TestUsersView.as_view()),
-    path('<str:test>/<int:question>', RetrieveQuestionView.as_view())
+    path('round/', CreateRoundScoreView.as_view())
 ]
 
