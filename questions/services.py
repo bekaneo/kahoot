@@ -10,9 +10,10 @@ from questions.models import Test, Question
 User = get_user_model()
 
 
-def update_user_ratings(request: Request) -> None:
+def update_user_ratings(user: str) -> None:
+    user = User.objects.get(login=user)
     all_user = User.objects.all().order_by('-overall_score')
-    group_user = User.objects.filter(group=request.user.group).order_by('-overall_score')
+    group_user = User.objects.filter(group=user.group).order_by('-overall_score')
     rating = 1
     for user in all_user:
         user.overall_rating = rating
@@ -25,22 +26,24 @@ def update_user_ratings(request: Request) -> None:
         rating += 1
 
 
-def update_overall_score(request: Request, final_score: int) -> None:
-    user = User.objects.get(login=request.user)
+def update_overall_score(user: str, final_score: int) -> None:
+    # user = User.objects.get(login=request.user)
+    user = User.objects.get(login=user)
     user.overall_score += final_score
     user.save()
 
 
 def create_final_score(request: Request, test: str) -> int:
+
     final_score = UserQuestionScore.objects.filter(test=test, user=request.user)
     final_score = final_score.aggregate(Sum('score'))['score__sum']
-    test = Test.objects.get(title=test)
-    try:
-        user_score = Score.objects.get(login=request.user, test=test)
-        user_score.score = final_score
-        user_score.save()
-    except Score.DoesNotExist:
-        Score.objects.create(login=request.user, test=test, score=final_score)
+    # test = Test.objects.get(title=test)
+    # try:
+    #     user_score = Score.objects.get(login=request.user, test=test)
+    #     user_score.score = final_score
+    #     user_score.save()
+    # except Score.DoesNotExist:
+    #     Score.objects.create(login=request.user, test=test, score=final_score)
 
     update_test_rating(test)
     update_overall_score(request, final_score)

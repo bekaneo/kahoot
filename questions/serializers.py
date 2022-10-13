@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
-from accounts.models import User, UserQuestionScore
+from accounts.models import Score, User, UserQuestionScore
 from groups.models import Group
 from questions.models import Test, Question, Answer
+from questions.services import update_overall_score, update_user_ratings
 
 
 class TestUsersSerializer(serializers.ModelSerializer):
@@ -50,7 +51,7 @@ class RetrieveQuestionSerializer(serializers.ModelSerializer):
 class AnswersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        exclude = ['question', 'correct_answer']
+        exclude = ['question', 'correct_answer', 'id']
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -130,22 +131,15 @@ class CreateTestSerializer(serializers.Serializer):
         return test
 
 
-class CreateRoundScoreSerializer(serializers.Serializer):
-    test = serializers.CharField(max_length=100)
-    question = serializers.IntegerField()
-    email = serializers.EmailField(max_length=100)
-    score = serializers.IntegerField()
-    answer = serializers.CharField(max_length=5)
-
-    def validate(self, attrs):
-        email = attrs.pop('email')
-        test = attrs.pop('test')
-        question = attrs.pop('question')
-        attrs['user'] = User.objects.get(pk=email)
-        attrs['test'] = Test.objects.get(pk=test)
-        attrs['question'] = Question.objects.get(pk=question)
-        return attrs
-
+class CreateRoundScoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Score
+        fields = '__all__'
+    
     def create(self, validated_data):
-        return UserQuestionScore.objects.create(**validated_data)
-
+        user = validated_data['login']
+        final_score = validated_data['score']
+        score = Score.objects.create(**validated_data)
+        update_overall_score(user, final_score)
+        update_user_ratings(user)
+        return score

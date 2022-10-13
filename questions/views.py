@@ -18,6 +18,17 @@ from questions.serializers import (CreateRoundScoreSerializer, ListTestSerialize
 from questions.services import create_time, create_score
 from questions.utils import calculate_score, check_answers
 
+class CreateRoundScoreView(CreateAPIView):
+    serializer_class = CreateRoundScoreSerializer
+    permission_classes = []
+    http_method_names = ["post"]
+ 
+    def post(self, request, *args, **kwargs):
+        serializer = CreateRoundScoreSerializer(data=request.data, many=True)
+        if serializer.is_valid(raise_exception=True):
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response('Invalid data', status=status.HTTP_400_BAD_REQUEST)
 
 class CreateTestView(CreateAPIView):
     serializer_class = CreateTestSerializer
@@ -30,7 +41,7 @@ class CreateTestView(CreateAPIView):
         return Response('Not Valid', status=status.HTTP_400_BAD_REQUEST)
 
 
-class ListTestView(ListAPIView):
+class ListTestView(ListAPIView, CreateAPIView):
     queryset = Test.objects.all()
     serializer_class = ListTestSerializer
     filter_backends = [SearchFilter, DjangoFilterBackend]
@@ -41,6 +52,15 @@ class ListTestView(ListAPIView):
     def get_queryset(self):
         return Test.objects.filter(group=self.request.user.group)
 
+    @swagger_auto_schema(request_body=CreateRoundScoreSerializer(many=True))
+    def post(self, request, *args, **kwargs):
+        print(len(request.data))
+        serializer = CreateRoundScoreSerializer(data=request.data, many=True, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response('Invalid data', status=status.HTTP_400_BAD_REQUEST)
 
 class TestUsersView(ListAPIView):
     serializer_class = TestUsersSerializer
@@ -56,17 +76,6 @@ class TestUsersView(ListAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-
-class CreateRoundScoreView(CreateAPIView):
-    serializer_class = CreateRoundScoreSerializer
-    permission_classes = []
-
-    def create(self, request, *args, **kwargs):
-        serializer = CreateRoundScoreSerializer(data=request.data, many=True)
-        if serializer.is_valid(raise_exception=True):
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response('Invalid data', status=status.HTTP_400_BAD_REQUEST)
 
 
 class ListQuestionsView(RetrieveAPIView):
