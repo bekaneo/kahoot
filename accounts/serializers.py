@@ -38,15 +38,12 @@ class UserTestSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         user = self.context.get('user')
-        questions = RetrieveQuestionSerializer(instance.questions.all(), many=True, context={'user': user})
         representation['score'] = instance.score.get(login=user, test=instance).score
         representation['rating'] = instance.rating.get(login=user, test=instance).rating
-        representation['questions'] = questions.data
         return representation
 
 
 class RetrieveQuestionSerializer(serializers.ModelSerializer):
-    # answer = AnswersSerializer(many=True)
     class Meta:
         model = Question
         fields = '__all__'
