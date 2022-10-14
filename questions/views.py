@@ -68,6 +68,26 @@ class TestUsersView(ListAPIView):
 
     @swagger_auto_schema(request_body=TestUsersSerializer)
     def list(self, request, test, *args, **kwargs):
+        ''' Returns [
+  {
+    "title": "water",
+    "image": null,
+    "is_active": true,
+    "group": "Zeon",
+    "leaders": [
+      [
+        {
+          "name": "string",
+          "second_name": "string",
+          "phone_number": "string",
+          "login": "use2r@example.com",
+          "score": 10000,
+          "rating": 1,
+          "test_passed": 1
+        }
+      ]
+    ]
+  }'''
         queryset = Test.objects.filter(title=test)
         serializer = TestUsersSerializer(queryset, many=True)
 

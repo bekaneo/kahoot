@@ -3,7 +3,7 @@ from rest_framework import serializers
 from accounts.models import Score, User, UserQuestionScore
 from groups.models import Group
 from questions.models import Test, Question, Answer
-from questions.services import update_overall_score, update_user_ratings
+from questions.services import update_overall_score, update_test_rating, update_user_ratings
 
 
 class TestUsersSerializer(serializers.ModelSerializer):
@@ -15,8 +15,8 @@ class TestUsersSerializer(serializers.ModelSerializer):
         passed_users = instance.score.all().order_by('-score')
         users = []
         for user in passed_users:
-            user = User.objects.get(login=user.login)
-            serializer = UserSerializer(user, context={'test': instance})
+            user = User.objects.filter(login=user.login)
+            serializer = UserSerializer(user, many=True, context={'test': instance})
             users.append(serializer.data)
         representation = super().to_representation(instance)
         representation['leaders'] = users
@@ -30,6 +30,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        print(instance)
+        print(self.context.get('test'))
         representation['score'] = instance.score.get(login=instance, test=self.context.get('test')).score
         representation['rating'] = instance.rating.get(login=instance, test=self.context.get('test')).rating
         representation['test_passed'] = instance.score.count()
@@ -139,7 +141,11 @@ class CreateRoundScoreSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = validated_data['login']
         final_score = validated_data['score']
+        test = validated_data['test']
+        if Score.objects.filter(test=test, login=user).exists():
+            Score.objects.filter(test=test, login=user).delete()
         score = Score.objects.create(**validated_data)
         update_overall_score(user, final_score)
         update_user_ratings(user)
+        update_test_rating(test=test)
         return score

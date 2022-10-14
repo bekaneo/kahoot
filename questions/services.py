@@ -53,14 +53,12 @@ def create_final_score(request: Request, test: str) -> int:
 
 
 def update_test_rating(test: str) -> None:
-    queryset = UserQuestionScore.objects.filter(test=test)
-    queryset = queryset.values('user').annotate(final_score=Sum('score')).order_by('-final_score')
+    scores = Score.objects.filter(test=test).order_by('-score')
     ratings = Rating.objects.filter(test=test)
     ratings.delete()
     rating = 1
-    for user in queryset:
-        login = User.objects.get(login=user['user'])
-        Rating.objects.create(rating=rating, test=test, login=login)
+    for user in scores:
+        Rating.objects.create(login=user.login, rating=rating, test=test)
         rating += 1
 
 
