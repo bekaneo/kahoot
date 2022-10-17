@@ -1,10 +1,8 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
+from groups.views import ListGroupView
 
-from groups.views import GroupViewSet
+urlpatterns = [
+    path('', ListGroupView.as_view())
+]
 
-router = DefaultRouter()
-router.register('', GroupViewSet)
-
-urlpatterns = []
-
-urlpatterns += router.urls
