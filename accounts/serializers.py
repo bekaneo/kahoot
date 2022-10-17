@@ -3,7 +3,6 @@ from django.core.mail import send_mail
 
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
 from groups.models import Group
 from kahoot import settings
 from questions.models import Test, Question

@@ -13,6 +13,7 @@ CORRECT_ANSWER_CHOICE = (
 class Test(models.Model):
     title = models.CharField(max_length=100, primary_key=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='test')
+    description = models.TextField(blank=True)
     image = models.ImageField(blank=True)
     is_active = models.BooleanField(default=False)
 
@@ -23,7 +24,6 @@ class Test(models.Model):
 class Question(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='questions')
     question = models.TextField()
-    image = models.ImageField(blank=True)
     score = models.SmallIntegerField(default=100)
     timer = models.SmallIntegerField(default=20)
 

@@ -121,7 +121,9 @@ class CreateQuestionSerializer(serializers.Serializer):
 class CreateTestSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=100)
     image = serializers.ImageField(required=False)
+    description = serializers.CharField(max_length=500, required=False)
     questions = CreateQuestionSerializer(many=True)
+    
 
     def create(self, validated_data):
         questions = validated_data.pop('questions')
