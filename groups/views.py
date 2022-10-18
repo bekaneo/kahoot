@@ -15,7 +15,7 @@ class ListGroupView(ListAPIView):
     def get(self, request):
         serializer = GroupSerializer(self.get_queryset(), many=True)
         if serializer.data:
-            data = sorted(serializer.data, key=lambda x: x['score'], reverse=True)
-            return Response(data, status=status.HTTP_200_OK)
+            # data = sorted(serializer.data, key=lambda x: x['score'], reverse=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response('Not Found Groups', status=status.HTTP_404_NOT_FOUND)
