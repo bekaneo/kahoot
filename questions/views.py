@@ -2,7 +2,7 @@ from django.urls import is_valid_path
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
@@ -31,24 +31,29 @@ class CreateRoundScoreView(CreateAPIView):
 
         return Response('Invalid data', status=status.HTTP_400_BAD_REQUEST)
 
+class UpdateTestView(UpdateAPIView):
+    serializer_class = TestSerializer
+
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, **kwargs)
+
 class CreateTestView(CreateAPIView):
     serializer_class = CreateTestSerializer
 
     def create(self, request, *args, **kwargs):
-        # print(request)
         print(request.data)
         serializer = CreateTestSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response('success', status=status.HTTP_201_CREATED)
         return Response('Not Valid', status=status.HTTP_400_BAD_REQUEST)
+    
 
 
 class ListTestView(ListAPIView, CreateAPIView):
     queryset = Test.objects.all()
     serializer_class = ListTestSerializer
-    filter_backends = [SearchFilter, DjangoFilterBackend]
-    search_fields = ['title']
+     
 
     permission_classes = [IsAuthenticated]
 
@@ -82,11 +87,19 @@ class TestUsersView(ListAPIView):
     
 
 
-class ListQuestionsView(RetrieveAPIView):
+class ListQuestionsView(RetrieveAPIView, UpdateAPIView):
     serializer_class = ListQuestionSerializer
     permission_classes = [IsAuthenticated, IsUserGroup]
     pagination_class = StandardResultsSetPagination
+    queryset = Test.objects.all()
 
+    def patch(self, request, test, *args, **kwargs):
+        instance = Test.objects.get(title=test)
+        serializer = TestSerializer(instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, test, *args, **kwargs):
         queryset = Question.objects.filter(test=test)

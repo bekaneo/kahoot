@@ -26,7 +26,7 @@ User = get_user_model()
 class UsersListView(ListAPIView):
     queryset = User.objects.all().order_by('-overall_score')
     serializer_class = UsersListSerializer
-    search_fields = ['name', 'second_name', 'phone_number']
+    search_fields = ['login', 'name', 'second_name', 'phone_number']
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     filterset_fields = ['group']
 

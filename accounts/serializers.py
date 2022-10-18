@@ -113,12 +113,13 @@ class LoginSerializer(TokenObtainPairSerializer):
         return login
 
     def validate(self, attrs):
-        user = User.objects.get(login=attrs['login'])
+        login = attrs.get('login')
+        password = attrs.get('password')
+        user = User.objects.get(login=login)
+        if not user.check_password(password):
+            raise serializers.ValidationError('Password is not valid')
         attrs = super().validate(attrs)
         attrs['is_staff'] = user.is_staff
-        password = attrs.get('password')
-        if user.check_password(password):
-            raise serializers.ValidationError('Invalid password')
         return attrs
 
 class RestorePasswordSerializer(serializers.Serializer):

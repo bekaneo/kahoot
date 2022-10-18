@@ -13,6 +13,7 @@ urlpatterns = [
     path('create', CreateTestView.as_view()),
     path('<str:test>/', ListQuestionsView.as_view()),
     path('<str:test>/users', TestUsersView.as_view()),
+    # path('')
     # path('score/', CreateRoundScoreView.as_view())
 ]
 

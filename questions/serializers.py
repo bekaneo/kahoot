@@ -108,7 +108,6 @@ class CreateQuestionSerializer(serializers.Serializer):
     question = serializers.CharField(max_length=100)
     score = serializers.IntegerField(default=100)
     timer = serializers.IntegerField(default=20)
-    image = serializers.ImageField(required=False)
     answers = CreateAnswerSerializer()
 
     def create(self, validated_data):
@@ -130,12 +129,9 @@ class CreateTestSerializer(serializers.Serializer):
         if Test.objects.filter(title=title).exists():
             raise serializers.ValidationError('Test with this title already exists')
         return title
-    
-
     def create(self, validated_data):
         questions = validated_data.pop('questions')
         validated_data['group'] = Group.objects.get(pk='zeon')
-        print(validated_data)
         test = Test.objects.create(**validated_data)
         q_serializer = CreateQuestionSerializer(data=questions, many=True, context={'test': test})
         if q_serializer.is_valid(raise_exception=True):
@@ -164,5 +160,5 @@ class CreateRoundScoreSerializer(serializers.ModelSerializer):
 class TestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Test
-        fields = '__all__'
-        
+        fields = ['image']
+    

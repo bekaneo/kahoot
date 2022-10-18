@@ -17,7 +17,7 @@ class GroupSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         repr = super().to_representation(instance)
         repr['users'] = instance.user.count()
-        # repr['score'] = instance.user.aggregate(Sum('overall_score'))['overall_score__sum']
+        repr['score'] = instance.user.aggregate(Sum('overall_score'))['overall_score__sum']
         repr['tests'] = instance.test.count()
         return repr
     
