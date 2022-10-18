@@ -74,6 +74,8 @@ class ListQuestionSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['correct_answer'] = instance.answer.get().correct_answer
         representation['answers'] = AnswersSerializer(instance.answer.all(), many=True).data
+        # print(representation)
+        # print(Test.questions.get(question_id=representation['id']))
         return representation
 
 
@@ -123,11 +125,17 @@ class CreateTestSerializer(serializers.Serializer):
     image = serializers.ImageField(required=False)
     description = serializers.CharField(max_length=500, required=False)
     questions = CreateQuestionSerializer(many=True)
+
+    def validate_title(self, title):
+        if Test.objects.filter(title=title).exists():
+            raise serializers.ValidationError('Test with this title already exists')
+        return title
     
 
     def create(self, validated_data):
         questions = validated_data.pop('questions')
         validated_data['group'] = Group.objects.get(pk='zeon')
+        print(validated_data)
         test = Test.objects.create(**validated_data)
         q_serializer = CreateQuestionSerializer(data=questions, many=True, context={'test': test})
         if q_serializer.is_valid(raise_exception=True):

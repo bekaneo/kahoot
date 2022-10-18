@@ -1,10 +1,13 @@
+from django.db.models import Sum
+
 from rest_framework import serializers
 
 from groups.models import Group
 
-from django.db.models import Sum
 
 
+class DetailGroupSerializer(serializers.Serializer):
+    pass
 class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -17,3 +20,4 @@ class GroupSerializer(serializers.ModelSerializer):
         repr['score'] = instance.user.aggregate(Sum('overall_score'))['overall_score__sum']
         repr['tests'] = instance.test.count()
         return repr
+    

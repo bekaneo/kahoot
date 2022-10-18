@@ -34,6 +34,7 @@ class CreateTestView(CreateAPIView):
     serializer_class = CreateTestSerializer
 
     def create(self, request, *args, **kwargs):
+        print(request.data)
         serializer = CreateTestSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             serializer.save()
