@@ -53,7 +53,8 @@ class CreateTestView(CreateAPIView):
 class ListTestView(ListAPIView, CreateAPIView):
     queryset = Test.objects.all()
     serializer_class = ListTestSerializer
-     
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['title']
 
     permission_classes = [IsAuthenticated]
 
@@ -62,7 +63,6 @@ class ListTestView(ListAPIView, CreateAPIView):
 
     @swagger_auto_schema(request_body=CreateRoundScoreSerializer(many=True))
     def post(self, request, *args, **kwargs):
-        print(len(request.data))
         serializer = CreateRoundScoreSerializer(data=request.data, many=True, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             serializer.save()

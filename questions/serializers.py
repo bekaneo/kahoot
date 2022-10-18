@@ -1,3 +1,4 @@
+from requests import request
 from rest_framework import serializers
 
 from accounts.models import Score, User, UserQuestionScore
@@ -131,7 +132,7 @@ class CreateTestSerializer(serializers.Serializer):
         return title
     def create(self, validated_data):
         questions = validated_data.pop('questions')
-        validated_data['group'] = Group.objects.get(pk='zeon')
+        validated_data['group'] = request.user.group
         test = Test.objects.create(**validated_data)
         q_serializer = CreateQuestionSerializer(data=questions, many=True, context={'test': test})
         if q_serializer.is_valid(raise_exception=True):
