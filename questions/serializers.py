@@ -159,3 +159,10 @@ class CreateRoundScoreSerializer(serializers.ModelSerializer):
         update_user_ratings(user)
         update_test_rating(test=test)
         return score
+
+
+class TestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Test
+        fields = '__all__'
+        

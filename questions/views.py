@@ -7,12 +7,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 
+from .paginations import StandardResultsSetPagination
 from questions.models import Test, Question
 from questions.permissions import IsUserGroup
 from questions.serializers import (CreateRoundScoreSerializer, ListTestSerializer,
                                    ListQuestionSerializer,
                                    RetrieveQuestionSerializer,
-                                   AnswerSerializer,
+                                   AnswerSerializer, TestSerializer,
                                    TestUsersSerializer, CreateTestSerializer)
 
 from questions.services import create_time, create_score
@@ -34,6 +35,7 @@ class CreateTestView(CreateAPIView):
     serializer_class = CreateTestSerializer
 
     def create(self, request, *args, **kwargs):
+        # print(request)
         print(request.data)
         serializer = CreateTestSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
@@ -69,6 +71,7 @@ class TestUsersView(ListAPIView):
 
     @swagger_auto_schema(request_body=TestUsersSerializer)
     def list(self, request, test, *args, **kwargs):
+        
         queryset = Test.objects.filter(title=test)
         serializer = TestUsersSerializer(queryset, many=True)
 
@@ -82,22 +85,31 @@ class TestUsersView(ListAPIView):
 class ListQuestionsView(RetrieveAPIView):
     serializer_class = ListQuestionSerializer
     permission_classes = [IsAuthenticated, IsUserGroup]
+    pagination_class = StandardResultsSetPagination
+
 
     def retrieve(self, request, test, *args, **kwargs):
         queryset = Question.objects.filter(test=test)
+        test_queryset = Test.objects.filter(title=test).first()
         serializer = ListQuestionSerializer(queryset, many=True)
 
         if not serializer.data:
             return Response(f'Not found this test {test}', status=status.HTTP_404_NOT_FOUND)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        test_serializer = TestSerializer(test_queryset)
+        data = {
+            'test': test_serializer.data,
+            'questions': serializer.data
+        }
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class RetrieveQuestionView(RetrieveAPIView, CreateAPIView):
     serializer_class = AnswerSerializer
     permission_classes = [IsAuthenticated, IsUserGroup]
+    
 
     def retrieve(self, request, test, question, *args, **kwargs):
+        
         queryset = Question.objects.filter(id=question, test=test)
         serializer = RetrieveQuestionSerializer(queryset, many=True)
 
