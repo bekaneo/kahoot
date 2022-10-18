@@ -1,8 +1,6 @@
-from requests import request
 from rest_framework import serializers
 
-from accounts.models import Score, User, UserQuestionScore
-from groups.models import Group
+from accounts.models import Score, User
 from questions.models import Test, Question, Answer
 from questions.services import update_overall_score, update_test_rating, update_user_ratings
 
@@ -31,8 +29,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        print(instance)
-        print(self.context.get('test'))
         representation['score'] = instance.score.get(login=instance, test=self.context.get('test')).score
         representation['rating'] = instance.rating.get(login=instance, test=self.context.get('test')).rating
         representation['test_passed'] = instance.score.count()
@@ -75,8 +71,6 @@ class ListQuestionSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['correct_answer'] = instance.answer.get().correct_answer
         representation['answers'] = AnswersSerializer(instance.answer.all(), many=True).data
-        # print(representation)
-        # print(Test.questions.get(question_id=representation['id']))
         return representation
 
 
@@ -132,7 +126,7 @@ class CreateTestSerializer(serializers.Serializer):
         return title
     def create(self, validated_data):
         questions = validated_data.pop('questions')
-        validated_data['group'] = request.user.group
+        validated_data['group'] = self.context.get('request').user.group
         test = Test.objects.create(**validated_data)
         q_serializer = CreateQuestionSerializer(data=questions, many=True, context={'test': test})
         if q_serializer.is_valid(raise_exception=True):

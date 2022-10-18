@@ -1,28 +1,28 @@
 from django.urls import is_valid_path
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 
-from .paginations import StandardResultsSetPagination
+from questions.paginations import StandardResultsSetPagination
 from questions.models import Test, Question
 from questions.permissions import IsUserGroup
-from questions.serializers import (CreateRoundScoreSerializer, ListTestSerializer,
+from questions.serializers import (CreateRoundScoreSerializer, 
+                                   ListTestSerializer,
                                    ListQuestionSerializer,
-                                   RetrieveQuestionSerializer,
-                                   AnswerSerializer, TestSerializer,
-                                   TestUsersSerializer, CreateTestSerializer)
+                                   TestSerializer,
+                                   TestUsersSerializer, 
+                                   CreateTestSerializer)
 
 from questions.services import create_time, create_score
 from questions.utils import calculate_score, check_answers
 
 class CreateRoundScoreView(CreateAPIView):
     serializer_class = CreateRoundScoreSerializer
-    permission_classes = []
-    http_method_names = ["post"]
+    permission_classes = [IsAuthenticated]
  
     def post(self, request, *args, **kwargs):
         serializer = CreateRoundScoreSerializer(data=request.data, many=True)
@@ -45,10 +45,10 @@ class CreateTestView(CreateAPIView):
         serializer = CreateTestSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response('success', status=status.HTTP_201_CREATED)
+            return Response(serializer.initial_data, status=status.HTTP_201_CREATED)
+
         return Response('Not Valid', status=status.HTTP_400_BAD_REQUEST)
     
-
 
 class ListTestView(ListAPIView, CreateAPIView):
     queryset = Test.objects.all()
@@ -69,6 +69,7 @@ class ListTestView(ListAPIView, CreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response('Invalid data', status=status.HTTP_400_BAD_REQUEST)
+
 
 class TestUsersView(ListAPIView):
     serializer_class = TestUsersSerializer
@@ -116,29 +117,29 @@ class ListQuestionsView(RetrieveAPIView, UpdateAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class RetrieveQuestionView(RetrieveAPIView, CreateAPIView):
-    serializer_class = AnswerSerializer
-    permission_classes = [IsAuthenticated, IsUserGroup]
+# class RetrieveQuestionView(RetrieveAPIView, CreateAPIView):
+#     serializer_class = AnswerSerializer
+#     permission_classes = [IsAuthenticated, IsUserGroup]
     
 
-    def retrieve(self, request, test, question, *args, **kwargs):
+#     def retrieve(self, request, test, question, *args, **kwargs):
         
-        queryset = Question.objects.filter(id=question, test=test)
-        serializer = RetrieveQuestionSerializer(queryset, many=True)
+#         queryset = Question.objects.filter(id=question, test=test)
+#         serializer = RetrieveQuestionSerializer(queryset, many=True)
 
-        if not serializer.data:
-            return Response('Question not Found', status=status.HTTP_404_NOT_FOUND)
+#         if not serializer.data:
+#             return Response('Question not Found', status=status.HTTP_404_NOT_FOUND)
 
-        create_time(request, question, test)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         create_time(request, question, test)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def create(self, request, test, question, *args, **kwargs):
-        queryset = Question.objects.get(id=question)
-        score = calculate_score(request, question)
-        check_answer = check_answers(request, test)
+#     def create(self, request, test, question, *args, **kwargs):
+#         queryset = Question.objects.get(id=question)
+#         score = calculate_score(request, question)
+#         check_answer = check_answers(request, test)
 
-        if check_answer:
-            return Response(f'Test is over {check_answer}', status=status.HTTP_201_CREATED)
+#         if check_answer:
+#             return Response(f'Test is over {check_answer}', status=status.HTTP_201_CREATED)
 
-        create_score(request, queryset, score, test)
-        return Response(f'Your score is {score}', status=status.HTTP_201_CREATED)
+#         create_score(request, queryset, score, test)
+#         return Response(f'Your score is {score}', status=status.HTTP_201_CREATED)
