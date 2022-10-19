@@ -109,7 +109,7 @@ class ListQuestionsView(RetrieveAPIView, UpdateAPIView):
 
         if not serializer.data:
             return Response(f'Not found this test {test}', status=status.HTTP_404_NOT_FOUND)
-        test_serializer = TestSerializer(test_queryset)
+        test_serializer = ListTestSerializer(test_queryset)
         data = {
             'test': test_serializer.data,
             'questions': serializer.data
