@@ -31,4 +31,4 @@ urlpatterns = [
     path('tests/', include('questions.urls')),
     path('group/', include('groups.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
