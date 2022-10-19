@@ -120,6 +120,7 @@ class LoginSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError('Password is not valid')
         attrs = super().validate(attrs)
         attrs['is_staff'] = user.is_staff
+        attrs['group'] = user.group
         return attrs
 
 class RestorePasswordSerializer(serializers.Serializer):
