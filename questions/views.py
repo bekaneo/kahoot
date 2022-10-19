@@ -45,7 +45,7 @@ class CreateTestView(CreateAPIView):
         serializer = CreateTestSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.initial_data, status=status.HTTP_201_CREATED)
+            return Response(request.data.get('title'), status=status.HTTP_201_CREATED)
 
         return Response('Not Valid', status=status.HTTP_400_BAD_REQUEST)
     
