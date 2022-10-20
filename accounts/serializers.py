@@ -121,7 +121,6 @@ class LoginSerializer(TokenObtainPairSerializer):
         attrs = super().validate(attrs)
         attrs['login'] = user.login
         attrs['is_staff'] = user.is_staff
-        # print(user.group)
         attrs['group'] = str(user.group)
         return attrs
 

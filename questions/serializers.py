@@ -157,3 +157,7 @@ class TestSerializer(serializers.ModelSerializer):
         model = Test
         fields = ['image']
     
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        print(attrs)
+        return attrs

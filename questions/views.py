@@ -1,3 +1,4 @@
+from urllib.request import Request
 from django.urls import is_valid_path
 from rest_framework import status
 from rest_framework.filters import SearchFilter
@@ -95,6 +96,7 @@ class ListQuestionsView(RetrieveAPIView, UpdateAPIView):
     queryset = Test.objects.all()
 
     def patch(self, request, test, *args, **kwargs):
+        print(request.data)
         instance = Test.objects.get(title=test)
         serializer = TestSerializer(instance, data=request.data)
         if serializer.is_valid(raise_exception=True):
