@@ -87,22 +87,25 @@ class TestUsersView(ListAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+class UpdateTestView(UpdateAPIView):
+    serializer_class = TestSerializer
 
-
-class ListQuestionsView(RetrieveAPIView, UpdateAPIView):
-    serializer_class = ListQuestionSerializer
-    # permission_classes = [IsAuthenticated]
-    pagination_class = StandardResultsSetPagination
-    queryset = Test.objects.all()
+    def get_queryset(self, test):
+        return Test.objects.get(title=test)
 
     def patch(self, request, test, *args, **kwargs):
-        print(request.data)
-        instance = Test.objects.get(title=test)
+        instance = self.get_queryset(test)
         serializer = TestSerializer(instance, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class ListQuestionsView(RetrieveAPIView):
+    serializer_class = ListQuestionSerializer
+    permission_classes = [IsAuthenticated, IsUserGroup]
+    pagination_class = StandardResultsSetPagination
+    queryset = Test.objects.all()
 
     def retrieve(self, request, test, *args, **kwargs):
         queryset = Question.objects.filter(test=test)

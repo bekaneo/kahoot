@@ -5,6 +5,7 @@ from questions.views import (CreateRoundScoreView,
                              ListQuestionsView,
                              TestUsersView,
                              CreateTestView,
+                             UpdateTestView
                              )
 
                              
@@ -13,5 +14,6 @@ urlpatterns = [
     path('create', CreateTestView.as_view()),
     path('<str:test>/', ListQuestionsView.as_view()),
     path('<str:test>/users', TestUsersView.as_view()),
+    path('update/<str:test>', UpdateTestView.as_view())
 ]
 
