@@ -119,6 +119,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         if not user.check_password(password):
             raise serializers.ValidationError('Password is not valid')
         attrs = super().validate(attrs)
+        attrs['login'] = user.login
         attrs['is_staff'] = user.is_staff
         # print(user.group)
         attrs['group'] = str(user.group)
