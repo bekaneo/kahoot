@@ -91,7 +91,7 @@ class TestUsersView(ListAPIView):
 
 class ListQuestionsView(RetrieveAPIView, UpdateAPIView):
     serializer_class = ListQuestionSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
     queryset = Test.objects.all()
 
