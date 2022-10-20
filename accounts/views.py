@@ -61,6 +61,7 @@ class LoginView(TokenObtainPairView):
 
 class UpdateTokenView(TokenRefreshView):
     serializer_class = TokenRefreshSerializer
+    'sad'
 
 
 class LogoutView(APIView):
