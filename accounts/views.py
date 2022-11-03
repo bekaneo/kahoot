@@ -36,8 +36,8 @@ class ProfileView(ListAPIView):
     serializer_class = ProfileSerializer
 
     @swagger_auto_schema(request_body=ProfileSerializer)
-    def list(self, request, login, *args, **kwargs):
-        queryset = User.objects.filter(login=login)
+    def list(self, request, user_id, *args, **kwargs):
+        queryset = User.objects.filter(user_id=user_id)
         serializer = ProfileSerializer(queryset, context={'request': request}, many=True)
 
         if serializer.data:
@@ -61,7 +61,6 @@ class LoginView(TokenObtainPairView):
 
 class UpdateTokenView(TokenRefreshView):
     serializer_class = TokenRefreshSerializer
-    'sad'
 
 
 class LogoutView(APIView):

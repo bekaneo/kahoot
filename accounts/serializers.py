@@ -64,7 +64,7 @@ class RetrieveQuestionSerializer(serializers.ModelSerializer):
 class UsersListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['login', 'name', 'second_name',
+        fields = ['login', 'name', 'second_name', 'user_id',
                   'group', 'phone_number', 'overall_score', 'overall_rating', 'group_rating']
 
     def to_representation(self, instance):
