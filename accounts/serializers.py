@@ -122,7 +122,9 @@ class LoginSerializer(TokenObtainPairSerializer):
         attrs['login'] = user.login
         attrs['is_staff'] = user.is_staff
         attrs['group'] = str(user.group)
+        attrs['user_id'] = str(user.user_id)
         return attrs
+
 
 class RestorePasswordSerializer(serializers.Serializer):
     login = serializers.EmailField()

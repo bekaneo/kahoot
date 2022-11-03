@@ -11,20 +11,21 @@ from drf_yasg.utils import swagger_auto_schema
 from questions.paginations import StandardResultsSetPagination
 from questions.models import Test, Question
 from questions.permissions import IsUserGroup
-from questions.serializers import (CreateRoundScoreSerializer, 
+from questions.serializers import (CreateRoundScoreSerializer,
                                    ListTestSerializer,
                                    ListQuestionSerializer,
                                    TestSerializer,
-                                   TestUsersSerializer, 
+                                   TestUsersSerializer,
                                    CreateTestSerializer)
 
 from questions.services import create_time, create_score
 from questions.utils import calculate_score, check_answers
 
+
 class CreateRoundScoreView(CreateAPIView):
     serializer_class = CreateRoundScoreSerializer
     permission_classes = [IsAuthenticated]
- 
+
     def post(self, request, *args, **kwargs):
         serializer = CreateRoundScoreSerializer(data=request.data, many=True)
         if serializer.is_valid(raise_exception=True):
@@ -32,11 +33,13 @@ class CreateRoundScoreView(CreateAPIView):
 
         return Response('Invalid data', status=status.HTTP_400_BAD_REQUEST)
 
+
 class UpdateTestView(UpdateAPIView):
     serializer_class = TestSerializer
 
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
+
 
 class CreateTestView(CreateAPIView):
     serializer_class = CreateTestSerializer
@@ -49,7 +52,7 @@ class CreateTestView(CreateAPIView):
             return Response(request.data.get('title'), status=status.HTTP_201_CREATED)
 
         return Response('Not Valid', status=status.HTTP_400_BAD_REQUEST)
-    
+
 
 class ListTestView(ListAPIView, CreateAPIView):
     queryset = Test.objects.all()
@@ -78,7 +81,6 @@ class TestUsersView(ListAPIView):
 
     @swagger_auto_schema(request_body=TestUsersSerializer)
     def list(self, request, test, *args, **kwargs):
-        
         queryset = Test.objects.filter(title=test)
         serializer = TestUsersSerializer(queryset, many=True)
 
@@ -86,7 +88,8 @@ class TestUsersView(ListAPIView):
             return Response('Not found test', status=status.HTTP_404_NOT_FOUND)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+
 class UpdateTestView(UpdateAPIView):
     serializer_class = TestSerializer
 
@@ -100,6 +103,7 @@ class UpdateTestView(UpdateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 class ListQuestionsView(RetrieveAPIView):
     serializer_class = ListQuestionSerializer
@@ -121,30 +125,29 @@ class ListQuestionsView(RetrieveAPIView):
         }
         return Response(data, status=status.HTTP_200_OK)
 
-
 # class RetrieveQuestionView(RetrieveAPIView, CreateAPIView):
 #     serializer_class = AnswerSerializer
 #     permission_classes = [IsAuthenticated, IsUserGroup]
-    
-
+#
+#
 #     def retrieve(self, request, test, question, *args, **kwargs):
-        
+#
 #         queryset = Question.objects.filter(id=question, test=test)
 #         serializer = RetrieveQuestionSerializer(queryset, many=True)
-
+#
 #         if not serializer.data:
 #             return Response('Question not Found', status=status.HTTP_404_NOT_FOUND)
-
+#
 #         create_time(request, question, test)
 #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+#
 #     def create(self, request, test, question, *args, **kwargs):
 #         queryset = Question.objects.get(id=question)
 #         score = calculate_score(request, question)
 #         check_answer = check_answers(request, test)
-
+#
 #         if check_answer:
 #             return Response(f'Test is over {check_answer}', status=status.HTTP_201_CREATED)
-
+#
 #         create_score(request, queryset, score, test)
 #         return Response(f'Your score is {score}', status=status.HTTP_201_CREATED)

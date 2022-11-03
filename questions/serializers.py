@@ -43,7 +43,7 @@ class RetrieveQuestionSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['answers'] = AnswersSerializer(instance.answer.all(), many=True).data
-        
+
         return representation
 
 
@@ -114,6 +114,7 @@ class CreateQuestionSerializer(serializers.Serializer):
             a_serializer.save()
         return question
 
+
 class CreateTestSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=100)
     image = serializers.ImageField(required=False)
@@ -124,6 +125,7 @@ class CreateTestSerializer(serializers.Serializer):
         if Test.objects.filter(title=title).exists():
             raise serializers.ValidationError('Test with this title already exists')
         return title
+
     def create(self, validated_data):
         questions = validated_data.pop('questions')
         validated_data['group'] = self.context.get('request').user.group
@@ -138,7 +140,7 @@ class CreateRoundScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Score
         fields = '__all__'
-    
+
     def create(self, validated_data):
         user = validated_data['login']
         final_score = validated_data['score']
@@ -156,7 +158,7 @@ class TestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Test
         fields = ['image']
-    
+
     def validate(self, attrs):
         attrs = super().validate(attrs)
         print(attrs)

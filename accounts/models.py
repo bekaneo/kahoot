@@ -8,8 +8,9 @@ from questions.models import Test, Question
 
 class UserManager(BaseUserManager):
     def _create(self, login, password, **fields):
+        user_id = 'user'+get_random_string(10)
         login = self.normalize_email(login)
-        user = self.model(login=login, **fields)
+        user = self.model(login=login, user_id=user_id, **fields)
         user.set_password(password)
         user.save()
         return user
@@ -26,6 +27,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
+    user_id = models.SlugField(max_length=14, unique=True)
     name = models.CharField(max_length=50, blank=True)
     second_name = models.CharField(max_length=50, blank=True)
     login = models.EmailField(primary_key=True)
