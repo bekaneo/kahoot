@@ -14,9 +14,10 @@ from questions.permissions import IsUserGroup
 from questions.serializers import (CreateRoundScoreSerializer,
                                    ListTestSerializer,
                                    ListQuestionSerializer,
-                                   TestSerializer,
                                    TestUsersSerializer,
-                                   CreateTestSerializer)
+                                   CreateTestSerializer,
+                                   UpdateTestSerializer,
+                                   UpdateTestImageSerializer)
 
 from questions.services import create_time, create_score
 from questions.utils import calculate_score, check_answers
@@ -35,7 +36,7 @@ class CreateRoundScoreView(CreateAPIView):
 
 
 class UpdateTestView(UpdateAPIView):
-    serializer_class = TestSerializer
+    serializer_class = UpdateTestImageSerializer
 
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
@@ -45,13 +46,30 @@ class CreateTestView(CreateAPIView):
     serializer_class = CreateTestSerializer
 
     def create(self, request, *args, **kwargs):
-        print(request.data)
         serializer = CreateTestSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(request.data.get('title'), status=status.HTTP_201_CREATED)
 
         return Response('Not Valid', status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateTestView(UpdateAPIView):
+    serializer_class = UpdateTestSerializer
+    queryset = Test.objects.all()
+
+    def patch(self, request, test, *args, **kwargs):
+        test = Test.objects.get(title=test)
+        # questions = Question.objects.filter(test=test)
+        # questions_data = request.data.pop('questions')
+        test_serializer = self.get_serializer(test, data=request.data)
+        # questions_serializer = UpdateQuestionSerializer(questions, data=questions_data, many=True)
+        if test_serializer.is_valid(raise_exception=True):
+            test_serializer.save()
+            # if questions_serializer.is_valid(raise_exception=True):
+            #     questions_serializer.save()
+            return Response('y')
+        return Response('n')
 
 
 class ListTestView(ListAPIView, CreateAPIView):
@@ -90,15 +108,15 @@ class TestUsersView(ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UpdateTestView(UpdateAPIView):
-    serializer_class = TestSerializer
+class UpdateTestImageView(UpdateAPIView):
+    serializer_class = UpdateTestImageSerializer
 
     def get_queryset(self, test):
         return Test.objects.get(title=test)
 
     def patch(self, request, test, *args, **kwargs):
         instance = self.get_queryset(test)
-        serializer = TestSerializer(instance, data=request.data)
+        serializer = UpdateTestImageSerializer(instance, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

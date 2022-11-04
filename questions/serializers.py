@@ -153,13 +153,63 @@ class CreateRoundScoreSerializer(serializers.ModelSerializer):
         update_test_rating(test=test)
         return score
 
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
 
-class TestSerializer(serializers.ModelSerializer):
+
+class UpdateTestImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Test
         fields = ['image']
 
-    def validate(self, attrs):
-        attrs = super().validate(attrs)
-        print(attrs)
-        return attrs
+
+class UpdateAnswerSerializer(serializers.Serializer):
+    A = serializers.CharField(max_length=100)
+    B = serializers.CharField(max_length=100)
+    C = serializers.CharField(max_length=100)
+    D = serializers.CharField(max_length=100)
+    correct_answer = serializers.CharField(max_length=10)
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+
+
+class UpdateQuestionSerializer(serializers.Serializer):
+    question = serializers.CharField(max_length=100)
+    score = serializers.IntegerField(default=100)
+    timer = serializers.IntegerField(default=20)
+    answers = CreateAnswerSerializer()
+
+    def update(self, instance, validated_data):
+        answers = validated_data.pop('answers')
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        answer_instance = Answer.objects.get(question=instance.pk)
+        answer_serializer = UpdateAnswerSerializer(answer_instance, answers)
+        if answer_serializer.is_valid(raise_exception=True):
+            answer_serializer.save()
+        return instance
+
+
+class UpdateTestSerializer(serializers.Serializer):
+    description = serializers.CharField()
+    questions = CreateQuestionSerializer(many=True)
+
+    def update(self, instance, validated_data):
+        questions = validated_data.pop('questions')
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        questions_objects = Question.objects.filter(test=instance.pk)
+        zipped_questions = zip(questions_objects, questions)
+        for instance, data in zipped_questions:
+            question_serializer = UpdateQuestionSerializer(instance, data=data)
+            if question_serializer.is_valid(raise_exception=True):
+                question_serializer.save()
+        return instance
